@@ -18,7 +18,7 @@ module.exports = {
     });
   },
 
-  buildBlocksFromFile: function (label,filepath){
+  buildFromFile: function (label,filepath, Callback){
     var stream = fs.createReadStream(filepath);
     type = label;
     csv.fromStream(stream, {headers: false, trim : true})
@@ -35,29 +35,35 @@ module.exports = {
       }
     })
     .on("end", function(){
-      buildResidentsWithBlocks(type,blocks);
+      buildResidentsWithBlocks(type, blocks, Callback);
     });
-    return residentArray;
+
   }
 }
 
-//  buildResidentsWithBlocks: function (type,blocks){
- function buildResidentsWithBlocks (type,blocks){
+ function buildResidentsWithBlocks (type, blocks, Callback){
     console.log("done reading...\n Building Residents...");
     var newResident = null;
+    var char = 'A';
+
     for(var x=0; x < length; x++){
-      var label = type + "-" + (x+1);
+    var label = type + "-" + char;
 
       if(x === 0){
         newResident = new resident(label,blocks);
       }else{
         blocks = blocks.concat(blocks.splice(0,2));
-        blocks = blocks.concat(blocks.splice(0,2)); //shift over twice
         newResident = new resident(label,blocks);
       }
       residentArray.push(newResident);
       console.log("label: " + newResident.label + ", blocks: " + newResident.blockLabels + "\n");
+
       newResident = null;
+      char = nextChar(char);
     }
+    Callback(residentArray);
   }
-//}
+
+  function nextChar(c){
+    return String.fromCharCode(c.charCodeAt(0) + 1);
+  }

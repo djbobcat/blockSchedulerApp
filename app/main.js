@@ -1,11 +1,13 @@
 const electron = require('electron');
 const compManager = require('./compManager');
+const dbManager = require('./dbManager');
 
+// var _dbname = 'schedule.db';
+// var Datastore = require('nedb')
+//   , db = new Datastore({ filename: _dbpath, autoload: true });
 
-var _dbname = 'schedule.db';
-//var filepath = '/Users/jesseelfalan/Desktop/Electron_Apps/angular_electron_seed/app_data/clinics_csv/test_blocks.csv';
-var filepath = '/Users/jesseelfalan/Desktop/Electron_Apps/angular_electron_seed/app_data/clinics_csv/r1_blocks.csv';
-var _dbpath = '/Users/jesseelfalan/Desktop/Electron_Apps/angular_electron_seed/app_data/database/' + _dbname;
+var filepath = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/clinics_csv/r1_blocks.csv';
+//var _dbpath = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/database/' + _dbname;
 
 // Module to control application life.
 const {app} = electron;
@@ -25,17 +27,12 @@ function createWindow() {
 //2. If No db, prompt for new db name
 //2.1. DB manager => Create DB from files if none exists
 var type = "R1";
-var R1_collection = compManager.buildBlocksFromFile(type,filepath);
-
+compManager.buildFromFile(type,filepath, dbManager.addSet);
 
 //setup database
 // var Datastore = require('nedb')
 //   , db = new Datastore({ filename: _dbpath });
 // db.loadDatabase(function (err) {    // Callback is optional
-// console.log("insert blocks:");
-//   for(var x=0; x < blockArray.length; x++){
-//     console.log(blockArray[x]);
-//   //  var label = "R1" + (x+1);
 //     var doc = {x: blockArray[x]};
 //     db.insert(doc, function(err,newDoc){});
 //   }
