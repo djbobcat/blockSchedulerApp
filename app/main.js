@@ -6,7 +6,7 @@ const dbManager = require('./dbManager');
 // var Datastore = require('nedb')
 //   , db = new Datastore({ filename: _dbpath, autoload: true });
 
-var filepath = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/clinics_csv/r1_blocks.csv';
+var filepath = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/clinics_csv/R1_blocks.csv';
 //var _dbpath = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/database/' + _dbname;
 
 // Module to control application life.
