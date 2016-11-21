@@ -1,12 +1,18 @@
 const electron = require('electron');
 const compManager = require('./compManager');
 const dbManager = require('./dbManager');
-
+const async = require('async');
 // var _dbname = 'schedule.db';
 // var Datastore = require('nedb')
 //   , db = new Datastore({ filename: _dbpath, autoload: true });
 
-var filepath = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/clinics_csv/R1_blocks.csv';
+var path1 = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/blocks_csv/R1_blocks.csv';
+var path2 = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/blocks_csv/R2_blocks.csv';
+var path3 = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/blocks_csv/R3_blocks.csv';
+
+var filepath1 = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/blocks_csv/R1_blocks.csv';
+//var filepath2 = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/blocks_csv/R2_blocks.csv';
+
 //var _dbpath = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/database/' + _dbname;
 
 // Module to control application life.
@@ -26,46 +32,11 @@ function createWindow() {
 //1. Check settings for db file, load database of last saved
 //2. If No db, prompt for new db name
 //2.1. DB manager => Create DB from files if none exists
-var type = "R1";
-compManager.buildFromFile(type,filepath, dbManager.addSet);
+var dataset1 = {type:"R1", path:path1, callback: dbManager.addSet};
+var dataset2 = {type:"R2", path:path2, callback: dbManager.addSet};
+var dataset3 = {type:"R3", path:path3, callback: dbManager.addSet};
 
-//setup database
-// var Datastore = require('nedb')
-//   , db = new Datastore({ filename: _dbpath });
-// db.loadDatabase(function (err) {    // Callback is optional
-//     var doc = {x: blockArray[x]};
-//     db.insert(doc, function(err,newDoc){});
-//   }
-// });
-
-
-
-// db.count({}, function (err, count) {
-//   if (count === 0){
-//     console.log("db count:" + count);
-//     //prompt for file input
-//     blocks = compManager.buildBlocksFromFile(filepath);
-//     for(var x=0; x < blocks.length; x++){
-//       var label = "R1" + (x+1);
-//       var doc = {label: blocks[x]};
-//       db.insert(doc, function(err,newDoc){});
-//     }
-//     db.loadDatabase();
-//
-//   }else{
-//     db.loadDatabase();
-//   }
-// });
-
-
-
-// db.insert([{ x:105 }, { z: 243 }], function (err, newDocs) {
-// // Two documents were inserted in the database
-// // newDocs is an array with these documents, augmented with their _id
-// });
-
-
-
+populateDatabase(compManager.buildFromFile, dataset1, dataset2, dataset3);
 
   // and load the index.html of the app.
   win.loadURL(`file://${__dirname}/index.html`);
@@ -80,10 +51,22 @@ compManager.buildFromFile(type,filepath, dbManager.addSet);
   });
 }
 
+function populateDatabase(fnc,dataset1,dataset2,dataset3){
+  fnc(dataset1.type,dataset1.path,dataset1.callback,function(){
+    fnc(dataset2.type,dataset2.path,dataset2.callback,function(){
+      fnc(dataset3.type,dataset3.path,dataset3.callback,function(){
+        console.log("\n*** Completed DB Inserts ***");
+      });
+    });
+  });
+}
+
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
+
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

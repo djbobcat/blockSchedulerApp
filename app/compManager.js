@@ -18,7 +18,7 @@ module.exports = {
     });
   },
 
-  buildFromFile: function (label,filepath, Callback){
+  buildFromFile: function (label,filepath, Callback, secondCallback){
     var stream = fs.createReadStream(filepath);
     type = label;
     csv.fromStream(stream, {headers: false, trim : true})
@@ -35,14 +35,15 @@ module.exports = {
       }
     })
     .on("end", function(){
-      buildResidentsWithBlocks(type, blocks, Callback);
+      stream.destroy();
+      buildResidentsWithBlocks(type, blocks, Callback, secondCallback);
     });
 
   }
 }
 
- function buildResidentsWithBlocks (type, blocks, Callback){
-    console.log("done reading...\n Building Residents...");
+ function buildResidentsWithBlocks (type, blocks, Callback, secondCallback){
+    console.log("done reading...\nBuilding Residents...");
     var newResident = null;
     var char = 'A';
 
@@ -61,7 +62,7 @@ module.exports = {
       newResident = null;
       char = nextChar(char);
     }
-    Callback(residentArray);
+    Callback(residentArray, type, secondCallback);
   }
 
   function nextChar(c){
