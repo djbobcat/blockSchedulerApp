@@ -1,10 +1,12 @@
 const electron = require('electron');
+// const dbManager = require('./dbManager');
 const compManager = require('./compManager');
-const dbManager = require('./dbManager');
 const async = require('async');
-// var _dbname = 'schedule.db';
-// var Datastore = require('nedb')
-//   , db = new Datastore({ filename: _dbpath, autoload: true });
+var _dbname = 'schedule.db';
+var _dbpath = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/database/' + _dbname;
+
+var Datastore = require('nedb')
+  , db = new Datastore({ filename: _dbpath, autoload: true });
 
 var path1 = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/blocks_csv/R1_blocks.csv';
 var path2 = '/Users/jesseelfalan/Desktop/Electron_Apps/schedulerapp/app_data/blocks_csv/R2_blocks.csv';
@@ -32,11 +34,21 @@ function createWindow() {
 //1. Check settings for db file, load database of last saved
 //2. If No db, prompt for new db name
 //2.1. DB manager => Create DB from files if none exists
-var dataset1 = {type:"R1", path:path1, callback: dbManager.addSet};
-var dataset2 = {type:"R2", path:path2, callback: dbManager.addSet};
-var dataset3 = {type:"R3", path:path3, callback: dbManager.addSet};
+var dataset1 = {type:"R1", path:path1};
+var dataset2 = {type:"R2", path:path2};
+var dataset3 = {type:"R3", path:path3};
 
-populateDatabase(compManager.buildFromFile, dataset1, dataset2, dataset3);
+
+//populateDatabase(db, compManager.buildFromFile, dataset1, dataset2, dataset3, compManager);
+
+db.count({}, function (err, count) {
+  if(count == 0){
+    populateDatabase(dataset1, dataset2, dataset3, compManager.insertIntoDB);
+  }else{
+    console.log("loaded db successfully");
+  }
+});
+
 
   // and load the index.html of the app.
   win.loadURL(`file://${__dirname}/index.html`);
@@ -51,15 +63,28 @@ populateDatabase(compManager.buildFromFile, dataset1, dataset2, dataset3);
   });
 }
 
-function populateDatabase(fnc,dataset1,dataset2,dataset3){
-  fnc(dataset1.type,dataset1.path,dataset1.callback,function(){
-    fnc(dataset2.type,dataset2.path,dataset2.callback,function(){
-      fnc(dataset3.type,dataset3.path,dataset3.callback,function(){
-        console.log("\n*** Completed DB Inserts ***");
-      });
-    });
-  });
+function populateDatabase(dataset1, dataset2, dataset3, saveData){
+
+  compManager.buildFromFile(db, dataset1.type, dataset1.path, saveData);
+  compManager.buildFromFile(db, dataset2.type, dataset2.path, saveData);
+  compManager.buildFromFile(db, dataset3.type, dataset3.path, saveData);
+
+setTimeout(function(){
+  testfind();
+},5000);
 }
+
+function testfind(){
+  db.findOne({label : "R1-A"}, function(err, docs){
+    console.log("found: " + docs.blockLabels);
+  });
+
+  db.count({ label: "R1-A" }, function (err, count) {
+  console.log("R1-A COUNT: " + count);
+});
+}
+
+
 
 
 // This method will be called when Electron has finished

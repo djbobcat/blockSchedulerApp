@@ -18,9 +18,9 @@ module.exports = {
     });
   },
 
-  buildFromFile: function (label,filepath, Callback, secondCallback){
+  buildFromFile: function (db, type, filepath, callBack){
     var stream = fs.createReadStream(filepath);
-    type = label;
+    var array = null;
     csv.fromStream(stream, {headers: false, trim : true})
     .on("data", function(data){
       if((data[0] === ("date"))||(data[0]===("Date"))){
@@ -36,13 +36,23 @@ module.exports = {
     })
     .on("end", function(){
       stream.destroy();
-      buildResidentsWithBlocks(type, blocks, Callback, secondCallback);
-    });
+      callBack(db, buildResidentsWithBlocks(type, blocks), type);
+    })
 
+  },
+
+  insertIntoDB: function(db, set, type){
+  console.log("########## DB INSERT CALLED ############");
+    for(var x=0; x< set.length; x++){
+      var doc = set[x];
+      db.insert(doc, function(err,newDoc){});
+    }
+    console.log("Completed " + type + " insert");
   }
+
 }
 
- function buildResidentsWithBlocks (type, blocks, Callback, secondCallback){
+ function buildResidentsWithBlocks (type, blocks){
     console.log("done reading...\nBuilding Residents...");
     var newResident = null;
     var char = 'A';
@@ -62,7 +72,9 @@ module.exports = {
       newResident = null;
       char = nextChar(char);
     }
-    Callback(residentArray, type, secondCallback);
+    return residentArray;
+  //  Callback(residentArray, type, secondCallback);
+  //insertIntoDB(db, residentArray, type, callBack);
   }
 
   function nextChar(c){
